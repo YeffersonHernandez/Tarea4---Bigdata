@@ -1,0 +1,128 @@
+CONSULTAS BÁSICAS (INSERCIÓN, SELECCIÓN, ACTUALIZACIÓN Y ELIMINACIÓN DE DOCUMENTOS).
+
+{ "Nombre departamento": "VALLE" }
+
+
+{
+  "Nombre departamento": "BOGOTA",
+  "Estado": "Recuperado"
+}
+
+{ "Edad": { "$gt": 50 } }
+
+{ "Edad": { "$gte": 18 } }
+
+{ "Edad": { "$lt": 30 } }
+
+{ "Edad": { "$lte": 65 } }
+
+{ "Edad": { "$gte": 20, "$lte": 40 } }
+
+# Filtro con NOT IN:
+{
+  "Nombre departamento": { "$nin": ["BOGOTA", "VALLE"] }
+}
+
+# Búsqueda por texto (contiene):
+{
+  "Nombre municipio": { "$regex": "BUCA", "$options": "i" }
+}
+
+# Combinaciones complejas:
+{
+  "Nombre departamento": "SANTANDER",
+  "Edad": { "$gte": 30, "$lte": 60 },
+  "Sexo": "F",
+  "$or": [
+    { "Estado": "Recuperado" },
+    { "Estado": "Fallecido" }
+  ]
+}
+
+______________________________________________________________________
+ACTUALIZACIÓN
+{ "_id": ObjectId("690e35dd34d3bf0e372c16e2") }
+{ "$set": { "Estado": "Fallecido" } }
+
+# Actualizar múltiples campos:
+{ "Nombre departamento": "BOGOTA", "Estado": "Fallecido" }
+{ "$set": { "Estado": "Recuperado" } }
+
+ELIMINACIÓN
+# Eliminar por filtro: 
+{ "Estado": "Fallecido", "Edad": { "$gt": 80 } }
+
+{  "Sexo": "F",  "Edad": { "$gte": 20, "$lte": 40 }}
+__________________________________________________________________________
+CONSULTAS CON FILTROS Y OPERADORES.
+# Operador Lógico
+{ "Nombre departamento": "BOGOTA", "Estado": "Recuperado", "Edad": { "$gt": 30 } }
+
+# Operadores de Texto
+Búsqueda con expresiones regulares (case insensitive)
+{ "Nombre municipio": { "$regex": "BUCA", "$options": "i" } }
+
+# Casos fallecidos en Bogotá o Valle, mayores de 60 años
+{
+  "Nombre departamento": { "$in": ["BOGOTA", "VALLE"] },
+  "Estado": "Fallecido",
+  "Edad": { "$gt": 60 }
+}
+_______________________________________________________________________________
+# CONSULTAS DE AGREGACIÓN
+Contar casos por departamento
+Select $group
+{
+  _id: "$Nombre departamento",
+  total_casos: { $sum: 1 }
+
+# Edad promedio por departamento
+Select $group
+{
+  _id: "$Nombre departamento",
+  edad_promedio: { $avg: "$Edad" },
+  total_casos: { $sum: 1 }
+}
+
+# Edad promedio por departamento
+Select $group
+{
+  _id: "$Nombre departamento",
+  total_fallecidos: { $sum: 1 },
+  edad_promedio: { $avg: "$Edad" }
+}
+
+# Edades mínimas y maximas
+Select $group
+{
+  _id: "$Estado",
+  total: { $sum: 1 },
+  edad_promedio: { $avg: "$Edad" },
+  edad_minima: { $min: "$Edad" },
+  edad_maxima: { $max: "$Edad" }
+}
+
+# Suma 
+Select $group
+{
+  _id: "$Nombre departamento",
+  total_fallecidos: { $sum: 1 }
+}
+
+# Estadísticas completas
+{
+  _id: null,
+  total_casos: { $sum: 1 },
+  edad_promedio: { $avg: "$Edad" },
+  edad_minima: { $min: "$Edad" },
+  edad_maxima: { $max: "$Edad" },
+  total_fallecidos: {
+    $sum: { $cond: [{ $eq: ["$Estado", "Fallecido"] }, 1, 0] }
+  },
+  total_recuperados: {
+    $sum: { $cond: [{ $eq: ["$Estado", "Recuperado"] }, 1, 0] }
+  },
+  total_activos: {
+    $sum: { $cond: [{ $eq: ["$Estado", "Activo"] }, 1, 0] }
+  }
+}
