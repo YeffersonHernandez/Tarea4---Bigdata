@@ -71,13 +71,13 @@ Búsqueda con expresiones regulares (case insensitive)
 _______________________________________________________________________________
 # CONSULTAS DE AGREGACIÓN
 Contar casos por departamento
-Select $group
+Select Stage $group
 {
   _id: "$Nombre departamento",
   total_casos: { $sum: 1 }
 
 # Edad promedio por departamento
-Select $group
+Select Stage $group
 {
   _id: "$Nombre departamento",
   edad_promedio: { $avg: "$Edad" },
@@ -85,7 +85,7 @@ Select $group
 }
 
 # Edad promedio por departamento
-Select $group
+Select Stage $group
 {
   _id: "$Nombre departamento",
   total_fallecidos: { $sum: 1 },
@@ -93,7 +93,7 @@ Select $group
 }
 
 # Edades mínimas y maximas
-Select $group
+Select Stage $group
 {
   _id: "$Estado",
   total: { $sum: 1 },
@@ -103,13 +103,14 @@ Select $group
 }
 
 # Suma 
-Select $group
+Select Stage $group
 {
   _id: "$Nombre departamento",
   total_fallecidos: { $sum: 1 }
 }
 
 # Estadísticas completas
+Select Stage $group
 {
   _id: null,
   total_casos: { $sum: 1 },
